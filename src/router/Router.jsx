@@ -5,6 +5,8 @@ import LandingPageLayout from "../layouts/LandingPageLayout";
 import Home from "../components/Home";
 import Login from "../components/Login";
 import Register from "../components/Register";
+import UserLoggedinPageLayout from "../layouts/UserLoggedinPageLayout";
+import UserLoggedInPage from "../components/userLoggedIn/UserLoggedInPage";
 
 const router = createBrowserRouter([
     {
@@ -26,6 +28,19 @@ const router = createBrowserRouter([
 			},
         ],
     },
+    {
+        path: `${ROUTES.USER_LOGGEDIN.STATIC}`,
+        element: <UserLoggedinPageLayout />,
+        errorElement: <Error />,
+        children: [
+            {
+				path: `${ROUTES.USER_LOGGEDIN.STATIC}`,
+				element: <UserLoggedInPage />,
+			},
+        ],
+    },
+
+
 ]);
 
 export default router;

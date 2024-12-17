@@ -17,16 +17,48 @@ export default function Login() {
         event.preventDefault();
 
         const form = new FormData(event.currentTarget);
-        console.log(form);
+        // console.log(form);
 
         const email = form.get("email");
         const password = form.get("password");
         console.log(email, password);
-
-        toast.success("User Login Successful", {
-            position: "top-right",
+        const userLoginDto = {
+            email: email,
+            password: password
+        }
+        const dbUrl = `${import.meta.env.VITE_USER_LOGIN_URL}`;
+        fetch(dbUrl, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(userLoginDto),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data);
+            if (data?.id) {
+                toast.success(
+                    "User Logged In",
+                    {
+                        position: "top-right",
+                        duration: 4000,
+                    }
+                );
+                navigate(ROUTES.USER_LOGGEDIN.DYNAMIC(data?.id));
+            } else {
+                toast.error("User Login failed.", {
+                    position: "top-right",
+                    duration: 4000,
+                });
+            }
+        })
+        .catch((err) => {
+            console.log("Login: Internal server error.", err);
+            toast.error("Login: Internal server error.", {
+                position: "top-right",
+            });
         });
-
         // signIn(email, password)
         // 	.then((result) => {
         // 		console.log(result.user);
