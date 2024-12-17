@@ -31,28 +31,28 @@ export default function UserReview() {
                                         quisquam!
                                     </p>
                                     <div className="rating rating-xs">
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                             checked="checked"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
@@ -77,28 +77,28 @@ export default function UserReview() {
                                         quod ex porro?
                                     </p>
                                     <div className="rating rating-xs">
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                             checked="checked"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
                                         />
-                                        <input
+                                        <input readOnly
                                             type="radio"
                                             name="rating-5"
                                             className="mask mask-star-2 bg-orange-400"
@@ -117,28 +117,28 @@ export default function UserReview() {
                                 How was your experience?
                             </p>
                             <div className="rating gap-1 justify-center">
-                                <input
+                                <input readOnly
                                     type="radio"
                                     name="rating-3"
                                     className="mask mask-heart bg-red-400"
                                 />
-                                <input
+                                <input readOnly
                                     type="radio"
                                     name="rating-3"
                                     className="mask mask-heart bg-orange-400"
                                     checked="checked"
                                 />
-                                <input
+                                <input readOnly
                                     type="radio"
                                     name="rating-3"
                                     className="mask mask-heart bg-yellow-400"
                                 />
-                                <input
+                                <input readOnly
                                     type="radio"
                                     name="rating-3"
                                     className="mask mask-heart bg-lime-400"
                                 />
-                                <input
+                                <input readOnly
                                     type="radio"
                                     name="rating-3"
                                     className="mask mask-heart bg-green-400"

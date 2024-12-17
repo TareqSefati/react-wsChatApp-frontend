@@ -3,22 +3,25 @@ import { ROUTES } from "../routes/Routes";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import bcrypt from "bcryptjs";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 
 export default function Register() {
     const [checkbox, setCheckbox] = useState(false);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     // const { createUser, updateUserProfile, logOut } = useContext(AuthContext);
     const handleRegister = (event) => {
-        // event.preventDefault();
-        // const form = new FormData(event.currentTarget);
-        // console.log(form);
-        // const name = form.get("name");
-        // const photo = form.get("photo");
-        // const phone = form.get("phone");
-        // const address = form.get("address");
-        // const email = form.get("email");
-        // const password = form.get("password");
-        // console.log(name, phone, address, email, password, photo);
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        console.log(form);
+        const name = form.get("name");
+        const imgUrl = form.get("photoUrl");
+        const phnNumber = form.get("phone");
+        const address = form.get("address");
+        const email = form.get("email");
+        const password = form.get("password");
+        console.log(name, phnNumber, address, email, password, imgUrl);
+        saveUserInDb(name, phnNumber, address, email, password, imgUrl);
+
         // const photoData = new FormData();
         // photoData.append("image", photo);
         // createUser(email, password)
@@ -72,27 +75,26 @@ export default function Register() {
     };
 
     const saveUserInDb = async (
-        uid,
+        name,
+        phnNumber,
+        address,
         email,
         password,
-        name,
-        phone,
-        address,
-        displayUrl
+        imgUrl
     ) => {
-        //Save user in mongo db
-        const dbUrl = `${import.meta.env.VITE_BACKEND_USER_URL}`;
-        const hashedPassword = await hashPassword(password);
+        //Save user in mongo db by calling spring boot api
+        const dbUrl = `${import.meta.env.VITE_CREATE_USER_URL}`;
+        // TODO hash password later.
+        //const hashedPassword = await hashPassword(password);
         const userDbData = {
-            uid: uid,
-            email: email,
-            password: hashedPassword,
             name: name,
-            phoneNumber: phone,
+            imgUrl: imgUrl,
+            phnNumber: phnNumber,
             address: address,
-            photoUrl: displayUrl,
-            isAdmin: false,
-            isEnabled: true,
+            email: email,
+            password: password,
+            enabled: false,
+            online: false,
         };
         console.log("Show user data before save in db: ", userDbData);
         fetch(dbUrl, {
@@ -105,9 +107,17 @@ export default function Register() {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data);
-                if (data?.insertedId) {
-                    //The following logout() function is to logout the registered user by force.
-                    logOut();
+                if (data?.status === "Success") {
+                    toast.success("User Registration Successful. Please Login.", {
+                        position: "top-right",
+                        duration: 4000,
+                    });
+                    navigate(ROUTES.LOGIN);
+                }else {
+                    toast.error(data?.status, {
+                        position: "top-right",
+                        duration: 4000,
+                    });
                 }
             })
             .catch((err) => {
@@ -192,12 +202,25 @@ export default function Register() {
                                         <div className="mb-2">
                                             <label
                                                 className="text-sm font-medium text-gray-900 dark:text-gray-300"
-                                                htmlFor="photo"
+                                                htmlFor="photoUrl"
                                             >
                                                 Photo
                                             </label>
                                         </div>
                                         <div className="flex w-full rounded-lg pt-1">
+                                            <div className="relative w-full">
+                                                <input
+                                                    className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-md"
+                                                    id="photoUrl"
+                                                    type="text"
+                                                    name="photoUrl"
+                                                    placeholder="Your Name"
+                                                    autoComplete="on"
+                                                    required
+                                                ></input>
+                                            </div>
+                                        </div>
+                                        {/* <div className="flex w-full rounded-lg pt-1">
                                             <div className="relative w-full">
                                                 <input
                                                     className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-md"
@@ -209,7 +232,7 @@ export default function Register() {
                                                     required
                                                 ></input>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div>
                                         <div className="mb-2">
@@ -279,6 +302,15 @@ export default function Register() {
                                                     required
                                                 ></input>
                                             </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                className="text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                htmlFor="email"
+                                            >
+                                                Check and inform that given
+                                                email is available or not
+                                            </label>
                                         </div>
                                     </div>
                                     <div>
