@@ -7,6 +7,9 @@ import { faL } from "@fortawesome/free-solid-svg-icons";
 
 export default function Register() {
     const [checkbox, setCheckbox] = useState(false);
+    const [uniqueEmailMsg, setUniqueEmailMsg] = useState(false);
+    const [emailInvalidMsg, setEmailInvalidMsg] = useState(false);
+    const [emailFieldValidContent, setEmailFieldValidContent] = useState(false);
     const navigate = useNavigate();
     // const { createUser, updateUserProfile, logOut } = useContext(AuthContext);
     const handleRegister = (event) => {
@@ -108,12 +111,15 @@ export default function Register() {
             .then((data) => {
                 console.log(data);
                 if (data?.status === "Success") {
-                    toast.success("User Registration Successful. Please Login.", {
-                        position: "top-right",
-                        duration: 4000,
-                    });
+                    toast.success(
+                        "User Registration Successful. Please Login.",
+                        {
+                            position: "top-right",
+                            duration: 4000,
+                        }
+                    );
                     navigate(ROUTES.LOGIN);
-                }else {
+                } else {
                     toast.error(data?.status, {
                         position: "top-right",
                         duration: 4000,
@@ -159,6 +165,32 @@ export default function Register() {
         // if (event.target.checked != true) {
         //     console.log("box unchecked");
         // }
+    };
+
+    const checkUniqueEmail = (event) => {
+        const email = event.target.value.trim();
+        if (email) {
+            const emailPattern =
+                /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const validEmail = emailPattern.test(email);
+            if (validEmail) {
+                setEmailInvalidMsg(false);
+                fetch(`${import.meta.env.VITE_UNIQUE_EMAIL_CHECK_URL}/${email}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        console.log(email + " is unique? : - " + data);
+                        setUniqueEmailMsg(data);
+                        setEmailFieldValidContent(true);
+                    });
+                
+            } else {
+                setEmailInvalidMsg(true);
+                setEmailFieldValidContent(false);
+            }
+        } else {
+            setEmailInvalidMsg(false);
+            setEmailFieldValidContent(false);
+        }
     };
     return (
         <div>
@@ -300,18 +332,33 @@ export default function Register() {
                                                     placeholder="email@example.com"
                                                     autoComplete="on"
                                                     required
+                                                    onBlur={checkUniqueEmail}
                                                 ></input>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label
-                                                className="text-sm font-medium text-gray-900 dark:text-gray-300"
-                                                htmlFor="email"
-                                            >
-                                                Check and inform that given
-                                                email is available or not
-                                            </label>
-                                        </div>
+                                        {emailInvalidMsg ? (
+                                            <div>
+                                                <label className="text-sm font-semibold text-red-600 dark:text-gray-300">
+                                                    Invalid email format.
+                                                </label>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                {emailFieldValidContent && (
+                                                    <div>
+                                                        {uniqueEmailMsg ? (
+                                                            <label className="text-sm font-semibold text-green-500 dark:text-white">
+                                                                Email is available.
+                                                            </label>
+                                                        ) : (
+                                                            <label className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                                                Email is already taken.
+                                                            </label>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <div className="mb-2">
