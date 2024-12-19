@@ -6,7 +6,8 @@ import Home from "../components/Home";
 import Login from "../components/Login";
 import Register from "../components/Register";
 import UserLoggedinPageLayout from "../layouts/UserLoggedinPageLayout";
-import UserLoggedInPage from "../components/userLoggedIn/UserLoggedInPage";
+import LoggedInFeatures from "../components/userLoggedIn/LoggedInFeatures";
+import Chatting from "../components/userLoggedIn/Chatting";
 
 const router = createBrowserRouter([
     {
@@ -35,7 +36,11 @@ const router = createBrowserRouter([
         children: [
             {
 				path: `${ROUTES.USER_LOGGEDIN.STATIC}`,
-				element: <UserLoggedInPage />,
+				element: <LoggedInFeatures />,
+			},
+            {
+				path: `${ROUTES.CHAT.STATIC}`,
+				element: <Chatting />,
 			},
         ],
     },

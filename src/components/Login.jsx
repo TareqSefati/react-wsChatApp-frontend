@@ -3,9 +3,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 // import { AuthContext } from "../provider/AuthProvider";
 import toast from "react-hot-toast";
 import { ROUTES } from "../routes/Routes";
+import { useContext } from "react";
+import { AppContext } from "../contexts/AppContextProvider";
 // import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 
 export default function Login() {
+    const {setLoggedinUser} = useContext(AppContext);
     const navigate = useNavigate();
     // const { signIn, googleSignIn, githubSignIn, } = useContext(AuthContext);
     // const googleProvider = new GoogleAuthProvider();
@@ -38,6 +41,7 @@ export default function Login() {
         .then((data) => {
             console.log(data);
             if (data?.id) {
+                setLoggedinUser(data);
                 toast.success(
                     "User Logged In",
                     {

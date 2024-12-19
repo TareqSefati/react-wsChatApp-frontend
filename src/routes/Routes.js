@@ -8,8 +8,12 @@ export const ROUTES = {
     ABOUT: "/about",
     FAQ: "/faq",
     USER_LOGGEDIN: {
-        STATIC: "/user/:id",
-        DYNAMIC: (id) => `/user/${id}`,
+        STATIC: "/user/:userId",
+        DYNAMIC: (userId) => `/user/${userId}`,
+    },
+    CHAT: {
+        STATIC: "/user/:userId/chat",
+        DYNAMIC: (userId) => `/user/${userId}/chat`,
     },
     SINGLE_PRODUCT: {
         STATIC: "/products/:id",
