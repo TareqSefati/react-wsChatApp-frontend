@@ -5,10 +5,11 @@ import toast from "react-hot-toast";
 import { ROUTES } from "../routes/Routes";
 import { useContext } from "react";
 import { AppContext } from "../contexts/AppContextProvider";
+import { initializeWsConnection } from "../util/WebSocket";
 // import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 
 export default function Login() {
-    const {setLoggedinUser} = useContext(AppContext);
+    const {setLoggedinUser, setWsClient} = useContext(AppContext);
     const navigate = useNavigate();
     // const { signIn, googleSignIn, githubSignIn, } = useContext(AuthContext);
     // const googleProvider = new GoogleAuthProvider();
@@ -42,6 +43,8 @@ export default function Login() {
             console.log(data);
             if (data?.id) {
                 setLoggedinUser(data);
+                const client = initializeWsConnection(data);
+                setWsClient(client);
                 toast.success(
                     "User Logged In",
                     {
