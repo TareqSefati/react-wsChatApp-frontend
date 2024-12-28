@@ -5,7 +5,7 @@ import { AppContext } from "../../contexts/AppContextProvider";
 import toast from "react-hot-toast";
 
 export default function LoggedInNavbar() {
-	const { loggedinUser, setLoggedinUser } = useContext(AppContext);
+	const { loggedinUser, setLoggedinUser, wsClient } = useContext(AppContext);
     const navigate = useNavigate();
 	console.log("Logged in user", loggedinUser);
 	//const {user} = props;
@@ -31,6 +31,7 @@ export default function LoggedInNavbar() {
         .then((data) => {
             console.log(data);
             if (data?.status === "SUCCESS") {
+                wsClient.deactivate();
                 toast.success(
                     "User Logout Successful.",
                     {

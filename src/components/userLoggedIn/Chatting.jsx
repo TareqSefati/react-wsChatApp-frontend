@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { AppContext } from "../../contexts/AppContextProvider";
 
 export default function Chatting() {
-  const {loggedinUser} = useContext(AppContext);
+  const {loggedinUser, activeUser} = useContext(AppContext);
     return (
         <>
             {/* component */}
@@ -59,7 +59,7 @@ export default function Chatting() {
                                     Active Conversations
                                 </span>
                                 <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">
-                                    4
+                                    {activeUser.length}
                                 </span>
                             </div>
                             <div className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
