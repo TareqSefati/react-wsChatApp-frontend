@@ -132,31 +132,6 @@ export default function Login() {
         });
     }
 
-	const handleSubscribeAndPublishForWS = (client) => {
-		//console.log("Client: ", client);
-		// client.subscribe("/topic/public", (response) => {
-		// 	const message = JSON.parse(response.body);
-		// 	console.log(`Received: ${message}`);
-		// 	if (message.status === STATUS.JOIN) {
-		//         console.log("New user connected to system: ", message.user.name);
-		// 	}
-		// });
-		client.onConnect = () => {
-			console.log("Adding new on connect subscriptions");
-			client.subscribe("/topic/public", (response) => {
-				const message = JSON.parse(response.body);
-				console.log(`Received: ${message}`);
-				// if(message.status === STATUS.JOIN){
-
-				// }
-			});
-		};
-		client.publish({
-			destination: "/testConnection",
-			body: "Test Me!!!",
-		});
-	};
-
 	return (
 		<div>
 			<div className="py-8 bg-base-200 shadow-xl rounded-lg">
