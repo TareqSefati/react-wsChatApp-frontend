@@ -5,16 +5,19 @@ import { AppContext } from "../../contexts/AppContextProvider";
 export default function Chatting() {
     const { loggedinUser, activeUser } = useContext(AppContext);
     const [selectedUserId, setSelectedUserId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [activeConversation, setActiveConversation] = useState(null);
+    const [chats, setChats] = useState([]);
 
-    const handleUserClick = (id) => {
-        setSelectedUserId(id);
+    const handleUserClick = (user) => {
+        setSelectedUserId(user.id);
+        setSelectedUser(user);
         const url = `${import.meta.env.VITE_FIND_CONVERSATION_BY_IDS_URL}`;
         const conversationDto = {
 			participantId: loggedinUser.id,
-			adjacentId: id,
+			adjacentId: user.id,
 		};
-        console.log("conversationDto: ", conversationDto);
+        //console.log("conversationDto: ", conversationDto);
         fetch(url, {
 			method: "POST",
 			headers: {
@@ -35,8 +38,27 @@ export default function Chatting() {
         });
     }
 
-    const loadActiveConversations = (conversation)=>{
-        
+    const loadActiveConversations = async (conversation)=>{
+        const url = `${import.meta.env.VITE_FIND_CHATS_BY_CONVERSATION_HASH_URL}`;
+        const chatReq = {
+			conversationHash: conversation.conversationHash
+		};
+        const response = await fetch(url, {
+            method: "POST",
+			headers: {
+				"content-type": "application/json",
+			},
+			body: JSON.stringify(chatReq),
+        })
+        const data = await response.json();
+        console.log("chats: ",data);
+        setChats(data);
+
+        // .then((res) => res.json())
+        //     .then((data) => {
+        //         console.log(data);
+        //     })
+
     }
 
     return (
@@ -103,7 +125,7 @@ export default function Chatting() {
                                     activeUser.map((user) => {
                                         return (
                                             <li 
-                                                key={user.id} onClick={()=>handleUserClick(user.id)}
+                                                key={user.id} onClick={()=>handleUserClick(user)}
                                                 className={
                                                     `flex flex-row items-center hover:cursor-pointer rounded-xl p-2 transition-colors duration-200
                                                     ${selectedUserId === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`
@@ -145,9 +167,30 @@ export default function Chatting() {
                     <div className="flex flex-col flex-auto h-full p-6">
                         <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
                             <div className="flex flex-col h-full overflow-x-auto mb-4">
-                                <div className="flex flex-col h-full">
+                                <div className="flex flex-col-reverse h-full">
                                     <div className="grid grid-cols-12 gap-y-2">
-                                        <div className="col-start-1 col-end-8 p-3 rounded-lg">
+                                        {
+                                            chats.map((chat)=>{
+                                                return (
+                                                    <div key={chat.id} className={`${chat.senderId === loggedinUser.id ? 'col-start-6 col-end-13 p-3 rounded-lg':
+                                                        'col-start-1 col-end-8 p-3 rounded-lg'}`}>
+                                                        <div className={`${chat.senderId === loggedinUser.id ? 'gap-2 flex items-center justify-start flex-row-reverse':
+                                                            'flex flex-row items-center'}`} >
+                                                            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                                                {chat.senderId === loggedinUser.id ? loggedinUser.name : selectedUser.name}
+                                                            </div>
+                                                            <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                                                                <div>
+                                                                    {chat.text}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+
+                                        {/* <div className="col-start-1 col-end-8 p-3 rounded-lg">
                                             <div className="flex flex-row items-center">
                                                 <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                                     A
@@ -155,25 +198,6 @@ export default function Chatting() {
                                                 <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                                                     <div>
                                                         Hey How are you today?
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                                            <div className="flex flex-row items-center">
-                                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                                    A
-                                                </div>
-                                                <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                                    <div>
-                                                        Lorem ipsum dolor sit
-                                                        amet, consectetur
-                                                        adipisicing elit. Vel
-                                                        ipsa commodi illum saepe
-                                                        numquam maxime
-                                                        asperiores voluptate
-                                                        sit, minima
-                                                        perspiciatis.
                                                     </div>
                                                 </div>
                                             </div>
@@ -189,66 +213,7 @@ export default function Chatting() {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="col-start-6 col-end-13 p-3 rounded-lg">
-                                            <div className="flex items-center justify-start flex-row-reverse">
-                                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                                    A
-                                                </div>
-                                                <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                                    <div>
-                                                        Lorem ipsum dolor sit,
-                                                        amet consectetur
-                                                        adipisicing. ?
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                                            <div className="flex flex-row items-center">
-                                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                                    A
-                                                </div>
-                                                <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                                    <div>
-                                                        Lorem ipsum dolor sit
-                                                        amet !
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-start-6 col-end-13 p-3 rounded-lg">
-                                            <div className="flex items-center justify-start flex-row-reverse">
-                                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                                    A
-                                                </div>
-                                                <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                                    <div>
-                                                        Lorem ipsum dolor sit,
-                                                        amet consectetur
-                                                        adipisicing. ?
-                                                    </div>
-                                                    <div className="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
-                                                        Seen
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                                            <div className="flex flex-row items-center">
-                                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                                    A
-                                                </div>
-                                                <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                                    <div>
-                                                        Lorem ipsum dolor sit
-                                                        amet consectetur
-                                                        adipisicing elit.
-                                                        Perspiciatis, in.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
