@@ -84,17 +84,17 @@ export default function Login() {
                         reloadActiveUser();
                     }
 				});
-				client.subscribe(`/topic/${loggedinUser.id}`, (response) =>
-					console.log(
-						`Received self username queue: ${response.body}`
-					)
-				);
+				// client.subscribe(`/topic/${loggedinUser.id}`, (response) =>
+				// 	console.log(
+				// 		`Received self username queue: ${response.body}`
+				// 	)
+				// );
 				client.publish({
 					destination: "/topic/public",
 					body: "First Message",
 				});
 				const wsMessage = {
-					status: "JOIN",
+					status: STATUS.JOIN,
 					content: `ID: ${loggedinUser.id}`,
 					user: loggedinUser,
 				};

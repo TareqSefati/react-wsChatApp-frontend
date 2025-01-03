@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 export default function LoggedInNavbar() {
 	const { loggedinUser, setLoggedinUser, wsClient } = useContext(AppContext);
     const navigate = useNavigate();
-	console.log("Logged in user", loggedinUser);
+	//console.log("Logged in user", loggedinUser);
 	//const {user} = props;
 
 	const handleLogout = () => {
@@ -52,7 +52,7 @@ export default function LoggedInNavbar() {
 	};
 	return (
 		<div>
-			<div className="navbar bg-base-100 shadow-md mb-5">
+			<div className="navbar bg-base-100 shadow-md mb-2">
 				<div className="flex-1 navbar-start">
 					<Link
 						href={ROUTES.USER_LOGGEDIN.DYNAMIC(loggedinUser.id)}
