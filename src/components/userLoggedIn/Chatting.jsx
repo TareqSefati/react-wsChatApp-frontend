@@ -43,20 +43,35 @@ export default function Chatting() {
                 // console.log("Selected User: ", selectedUser.name);
                 // console.log("Incoming message : ", chatData);
                 // displayMessage(chatData);
-                if(!selectedUser){
-                    console.log("Conversation is not selected!");
-                }
+                
                 if(!selectedUser && loggedinUser.id === chatData.receiverId){
                     console.log("This incoming message is for you but Conversation is not selected!")
                     // Show notification.
+                    console.log("You got a message from: ", chatData.senderId);
                 }
-                if(selectedUser && loggedinUser.id !== chatData.receiverId){
-                    console.log("This incoming message is not for you but Conversation is selected!")
-                    // Show notification.
+                if(selectedUser){
+                    if(loggedinUser.id !== chatData.receiverId){
+                        console.log("This incoming message is not for you but Conversation is selected!")
+                    }else {
+                        console.log("This message for you.");
+                        if(selectedUser.id === chatData.senderId){
+                            addChat(chatData);
+                        }else{
+                            //Show notification
+                            console.log("You got a message from: ", chatData.senderId);
+                        }
+                    }
+                }else{
+                    console.log("Conversation is not selected!");
                 }
-                if((selectedUser && loggedinUser.id === chatData.receiverId)){
-                    addChat(chatData);
-                }
+
+                // if(selectedUser && loggedinUser.id !== chatData.receiverId){
+                //     console.log("This incoming message is not for you but Conversation is selected!")
+                //     // Show notification.
+                // }
+                // if((selectedUser && loggedinUser.id === chatData.receiverId)){
+                //     addChat(chatData);
+                // }
                 // addChat(chatData);
             }
             // setChats((prevMessages) => [...prevMessages, chatData]);
@@ -81,9 +96,10 @@ export default function Chatting() {
 
     useEffect(()=>{
         if(selectedUser){
-            processActiveConversation();
+            // processActiveConversation();
+            loadActiveConversationChatsFromDb(activeConversation);
         }
-    }, [selectedUser])
+    }, [selectedUser, activeConversation])
 
     const processActiveConversation = async()=>{
         const url = `${import.meta.env.VITE_FIND_CONVERSATION_BY_IDS_URL}`;
@@ -114,14 +130,68 @@ export default function Chatting() {
         console.log("Selected user: ", selectedUser);
     }
 
+    const getConversationWithSelection = async (user) => {
+        const url = `${import.meta.env.VITE_FIND_CONVERSATION_BY_IDS_URL}`;
+        const conversationDto = {
+            participantId: loggedinUser.id,
+            adjacentId: user.id,
+        };
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(conversationDto),
+        });
+        const data = await response.json();
+        let conversation = null;
+        if(!data?.id){
+            console.log("No conversation found between You & ", user.name);
+            console.log("Creating new conversation...");
+            const url = `${import.meta.env.VITE_CREATE_CONVERSATION_URL}`;
+            const conversationDto = {
+                participantId: loggedinUser.id,
+                adjacentId: user.id,
+            };
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify(conversationDto),
+            });
+            const value = await res.json();
+            if(value){
+                conversation = value;
+            }
+        }else{
+            conversation = data;
+        }
+        if(conversation?.id){
+            return conversation;
+        }
+        console.log("From get conversation function return : ", conversation);
+        return null;
+    }
+
     const setActiveUser = async (user) => {
         setChats([]);
         if(user.id != loggedinUser.id){
-            setSelectedUserId(user.id);
-            setSelectedUser(user);
+            const conversation = await getConversationWithSelection(user);
+            if(conversation){
+                setActiveConversation(conversation);
+                setSelectedUserId(user.id);
+                setSelectedUser(user);
+            }else{
+                console.log("Could not select this active user. Conversation entity not found!!!");
+                toast.error("Could not select this active user. Conversation entity not found!!!", {
+                    duration: 1500,
+                    position: "top-right"
+                })
+            }
         }else{
-            setSelectedUserId(user.id);
-            setSelectedUser(user);
+            // setSelectedUserId(user.id);
+            // setSelectedUser(user);
             console.log("You selected yourself.");
         }
     }
@@ -143,12 +213,6 @@ export default function Chatting() {
         setChats(data);
         console.log("Chat number while selected: ", chats.length);
         console.log("Chats while selected: ", chats);
-
-        // .then((res) => res.json())
-        //     .then((data) => {
-        //         console.log(data);
-        //     })
-        
     }
 
     useEffect(()=>{
