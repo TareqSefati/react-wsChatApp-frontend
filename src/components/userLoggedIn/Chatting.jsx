@@ -10,7 +10,6 @@ export default function Chatting() {
     const [activeConversation, setActiveConversation] = useState(null);
     const [chats, setChats] = useState([]);
     const [message, setMessage] = useState('');
-    const [incomingMsg, setIncomingMsg] = useState(null);
     const chatArea = useRef(null);
     
     //Subscribe to own channel in web socket client
@@ -41,9 +40,24 @@ export default function Chatting() {
             // const data = `${response.body.id}`;
             const chatData = await JSON.parse(response.body);
             if(chatData){
-                console.log("Incoming message : ", chatData);
+                // console.log("Selected User: ", selectedUser.name);
+                // console.log("Incoming message : ", chatData);
                 // displayMessage(chatData);
-                addChat(chatData);
+                if(!selectedUser){
+                    console.log("Conversation is not selected!");
+                }
+                if(!selectedUser && loggedinUser.id === chatData.receiverId){
+                    console.log("This incoming message is for you but Conversation is not selected!")
+                    // Show notification.
+                }
+                if(selectedUser && loggedinUser.id !== chatData.receiverId){
+                    console.log("This incoming message is not for you but Conversation is selected!")
+                    // Show notification.
+                }
+                if((selectedUser && loggedinUser.id === chatData.receiverId)){
+                    addChat(chatData);
+                }
+                // addChat(chatData);
             }
             // setChats((prevMessages) => [...prevMessages, chatData]);
             // console.log(`Received self username queue: ${(chatData)}`);
@@ -52,7 +66,7 @@ export default function Chatting() {
         return () => {
             subscription.unsubscribe(); // Unsubscribe on cleanup
         };
-    }, [wsClient])
+    }, [wsClient, selectedUser])
 
     // useEffect(() => {
     //     if (chatArea.current) {
@@ -138,12 +152,12 @@ export default function Chatting() {
     }
 
     useEffect(()=>{
-        if(chatArea.current){
-            chatArea.current.textContent = '';
-        }
-        chats.map((chat)=>{
-            displayMessage(chat);
-        })
+        // if(chatArea.current){
+        //     chatArea.current.textContent = '';
+        // }
+        // chats.map((chat)=>{
+        //     displayMessage(chat);
+        // })
         if (chatArea.current) {
             chatArea.current.scrollTop = chatArea.current.scrollHeight;
         }
@@ -153,12 +167,12 @@ export default function Chatting() {
         if(loggedinUser && selectedUser && chat){
             //console.log("Selected user: ", selectedUser);
             const messageContainer = document.createElement('div');
-            messageContainer.className = 'flex flex-row gap-2 max-w-[80%] w-fit p-1 text-white rounded-md m-1' 
+            messageContainer.className = 'flex flex-row gap-2 max-w-[80%] w-fit p-1 text-white rounded-md m-1';
             const msgSender  = document.createElement('div');
             msgSender.className = 'flex items-center justify-center size-7 rounded-full bg-indigo-500 flex-shrink-0';
             msgSender.textContent = chat.senderId === loggedinUser.id ? loggedinUser.name.charAt(0).toUpperCase() : selectedUser.name.charAt(0).toUpperCase();
             const msg = document.createElement('p');
-            msg.className = 'text-black relative text-sm py-2 px-3 shadow rounded-xl'
+            msg.className = 'text-black relative text-sm py-2 px-3 shadow rounded-xl';
             msg.textContent = chat.text;
             if (chat.senderId === loggedinUser.id) {
                 messageContainer.classList.toggle('self-end');
@@ -184,7 +198,7 @@ export default function Chatting() {
     }
 
     const sendMessage = async ()=>{
-        if(message.trim()) {
+        if(message.trim() && activeConversation) {
             const chatPayload = {
                 senderId: loggedinUser.id,
                 receiverId : selectedUserId,
@@ -334,6 +348,35 @@ export default function Chatting() {
                         <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
                             <div className="flex flex-col h-full mb-4">
                                 <div className="flex overflow-y-auto flex-col" ref={chatArea} >
+                                {
+                                    chats.map((chat, index)=>{
+                                        return (
+                                            <div key={index} 
+                                                className={`flex gap-2 max-w-[80%] w-fit p-1 text-white rounded-md m-1
+                                                    ${chat.senderId === loggedinUser.id?'self-end flex-row-reverse':'flex-row'}`}>
+                                                <div className={`flex items-center justify-center size-7 rounded-full bg-indigo-500 flex-shrink-0`}>
+                                                    {chat.senderId === loggedinUser.id ? loggedinUser.name.charAt(0).toUpperCase() : selectedUser.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <p className={`text-black relative text-sm py-2 px-3 shadow rounded-xl 
+                                                    ${chat.senderId === loggedinUser.id?'bg-indigo-100':'bg-white'}`}>
+                                                    {chat.text}
+                                                </p>
+                                                {/* <div className={`${chat.senderId === loggedinUser.id ? 'gap-2 flex items-center justify-start flex-row-reverse':
+                                                    'flex flex-row items-center'}`} >
+                                                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                                        {chat.senderId === loggedinUser.id ? loggedinUser.name : selectedUser.name}
+                                                    </div>
+                                                    <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                                                        <div>
+                                                            {chat.text}
+                                                        </div>
+                                                    </div>
+                                                </div> */}
+                                            </div>
+                                        );
+                                    })
+                                }
+
                                     {/* <div className="flex flex-row gap-2 max-w-[80%] w-fit bg-blue-500 p-4 text-white rounded-md m-4">
                                         <div className="flex items-center justify-center size-7 rounded-full bg-indigo-500 flex-shrink-0">
                                             <span>T</span>
