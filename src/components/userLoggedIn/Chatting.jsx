@@ -2,6 +2,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { AppContext } from "../../contexts/AppContextProvider";
 import toast from "react-hot-toast";
+import { format } from 'date-fns';
 
 export default function Chatting() {
     const { loggedinUser, activeUser, wsClient } = useContext(AppContext);
@@ -305,6 +306,17 @@ export default function Chatting() {
         }
     }
 
+    const getFormattedDate = (date) =>{
+        const formatStr = 'hh:mm a, dd MMM yyyy';
+        let dateTime;
+        if(date){
+            dateTime = date;
+        }else{
+            dateTime = new Date();
+        }
+        return format(dateTime, formatStr);
+    }
+
     return (
         <>
             {/* component */}
@@ -421,10 +433,13 @@ export default function Chatting() {
                                                 <div className={`flex items-center justify-center size-7 rounded-full bg-indigo-500 flex-shrink-0`}>
                                                     {chat.senderId === loggedinUser.id ? loggedinUser.name.charAt(0).toUpperCase() : selectedUser.name.charAt(0).toUpperCase()}
                                                 </div>
-                                                <p className={`text-black relative text-sm py-2 px-3 shadow rounded-xl 
-                                                    ${chat.senderId === loggedinUser.id?'bg-indigo-100':'bg-white'}`}>
-                                                    {chat.text}
-                                                </p>
+                                                <div className="flex flex-col">
+                                                    <p className={`text-black relative text-sm py-2 px-3 shadow rounded-xl 
+                                                        ${chat.senderId === loggedinUser.id?'bg-indigo-100':'bg-white'}`}>
+                                                        {chat.text}
+                                                    </p>
+                                                    <p className="text-slate-400 text-xs">{getFormattedDate(chat.sentAt)}</p>
+                                                </div>
                                                 {/* <div className={`${chat.senderId === loggedinUser.id ? 'gap-2 flex items-center justify-start flex-row-reverse':
                                                     'flex flex-row items-center'}`} >
                                                     <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
