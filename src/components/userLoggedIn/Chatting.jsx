@@ -11,6 +11,7 @@ export default function Chatting() {
     const [activeConversation, setActiveConversation] = useState(null);
     const [chats, setChats] = useState([]);
     const [message, setMessage] = useState('');
+    const [notification, setNotification] = useState(new Map());
     const chatArea = useRef(null);
     
     //Subscribe to own channel in web socket client
@@ -48,6 +49,7 @@ export default function Chatting() {
                 if(!selectedUser && loggedinUser.id === chatData.receiverId){
                     console.log("This incoming message is for you but Conversation is not selected!")
                     // Show notification.
+                    addNotification(chatData.senderId);
                     console.log("You got a message from: ", chatData.senderId);
                 }
                 if(selectedUser){
@@ -59,6 +61,7 @@ export default function Chatting() {
                             addChat(chatData);
                         }else{
                             //Show notification
+                            addNotification(chatData.senderId);
                             console.log("You got a message from: ", chatData.senderId);
                         }
                     }
@@ -183,6 +186,7 @@ export default function Chatting() {
                 setActiveConversation(conversation);
                 setSelectedUserId(user.id);
                 setSelectedUser(user);
+                deleteNotification(user.id);
             }else{
                 console.log("Could not select this active user. Conversation entity not found!!!");
                 toast.error("Could not select this active user. Conversation entity not found!!!", {
@@ -317,6 +321,39 @@ export default function Chatting() {
         return format(dateTime, formatStr);
     }
 
+    const addNotification = (senderId)=>{
+        if (senderId) {
+            setNotification((prevData) => {
+                const newMap = new Map(prevData);
+                if (newMap.has(senderId)) {
+                    // Update the value for the existing key
+                    newMap.set(senderId, newMap.get(senderId) + 1); 
+                }else{
+                    // Add new entry
+                    newMap.set(senderId, 1);
+                }
+                return newMap;
+            });
+        }
+    }
+
+    const deleteNotification = (senderId)=>{
+        if (senderId) {
+            setNotification((prevData) => {
+                const newMap = new Map(prevData);
+                newMap.delete(senderId); // Delete the key-value pair
+                return newMap;
+            });
+        }
+    }
+
+    const checkForNotification = (senderId)=>{
+        if(notification.has(senderId)){
+            return notification.get(senderId);
+        }
+    }
+
+
     return (
         <>
             {/* component */}
@@ -380,20 +417,30 @@ export default function Chatting() {
                                 {
                                     activeUser.map((user) => {
                                         return (
-                                            <li 
-                                                key={user.id} onClick={()=>setActiveUser(user)}
-                                                className={
-                                                    `flex flex-row items-center hover:cursor-pointer rounded-xl p-2 transition-colors duration-200
-                                                    ${selectedUserId === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`
-                                                }
-                                            >
-                                                <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                                                    {user.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="ml-2 text-sm font-semibold">
-                                                    {user.name}
-                                                </div>
-                                            </li>
+                                            user.id !== loggedinUser.id && 
+                                            (
+                                                <li 
+                                                    key={user.id} onClick={()=>setActiveUser(user)}
+                                                    className={
+                                                        `flex flex-row items-center hover:cursor-pointer rounded-xl p-2 transition-colors duration-200
+                                                        ${selectedUserId === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`
+                                                    }
+                                                >
+                                                    <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
+                                                        {user.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div className="ml-2 text-sm font-semibold">
+                                                        {user.name}
+                                                        {
+                                                            checkForNotification(user.id) && (
+                                                                <span className="inline-flex items-center justify-center size-5 ms-2 text-xs font-bold bg-blue-500 rounded-full">
+                                                                    {checkForNotification(user.id)}
+                                                                </span>
+                                                            )
+                                                        }
+                                                    </div>
+                                                </li>
+                                            )
                                         );
                                     })
                                 }
